@@ -49,3 +49,5 @@ After compressing a model into `model/`, reload the homepage. No code change is 
 2. Compress `Pants.glb` first.
 3. Compare visual quality and loading speed.
 4. Replace only the heaviest models first, especially watches and oversized garments.
+
+no need too do this I have done so
