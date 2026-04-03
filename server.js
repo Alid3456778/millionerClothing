@@ -14,6 +14,9 @@ const baseDir = __dirname;
 const port = Number(process.env.PORT) || 3000;
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/m-brand-store";
 const jwtSecret = process.env.JWT_SECRET || "m-brand-dev-secret";
+const keepAliveEnabled = String(process.env.KEEP_ALIVE_ENABLED || "false").toLowerCase() === "true";
+const keepAliveIntervalMinutes = Math.max(1, Number(process.env.KEEP_ALIVE_INTERVAL_MINUTES || 12));
+const keepAlivePath = process.env.KEEP_ALIVE_PATH || "/api/health";
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -62,6 +65,41 @@ function sanitizeUser(user) {
     isAdmin: !!user.isAdmin,
     createdAt: user.createdAt
   };
+}
+
+function getKeepAliveUrl() {
+  const explicitUrl = String(process.env.KEEP_ALIVE_URL || "").trim();
+  if (explicitUrl) return explicitUrl;
+
+  const appUrl = String(process.env.APP_URL || "").trim();
+  if (appUrl) {
+    return new URL(keepAlivePath, appUrl).toString();
+  }
+
+  return `http://127.0.0.1:${port}${keepAlivePath}`;
+}
+
+function startKeepAliveLoop() {
+  if (!keepAliveEnabled) return;
+
+  const targetUrl = getKeepAliveUrl();
+  const intervalMs = keepAliveIntervalMinutes * 60 * 1000;
+
+  async function pingSelf() {
+    try {
+      const response = await fetch(targetUrl, {
+        method: "GET",
+        headers: { "x-keep-alive": "m-brand" }
+      });
+      console.log(`[keep-alive] ${response.status} ${targetUrl}`);
+    } catch (error) {
+      console.warn(`[keep-alive] Failed to reach ${targetUrl}: ${error.message}`);
+    }
+  }
+
+  setTimeout(pingSelf, 15 * 1000);
+  setInterval(pingSelf, intervalMs);
+  console.log(`[keep-alive] Enabled. Pinging ${targetUrl} every ${keepAliveIntervalMinutes} minute(s).`);
 }
 
 async function buildUserCart(userId) {
@@ -579,6 +617,7 @@ mongoose
     await ensureSeedData();
     app.listen(port, () => {
       console.log(`M Brand server running at http://localhost:${port}`);
+      startKeepAliveLoop();
     });
   })
   .catch((error) => {
