@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M Brand Search | Discover Products</title>
+  <meta name="description" content="Search M Brand products, filter by category, price, rating, and color, and discover the right piece with a fast premium storefront experience." />
+  <meta name="keywords" content="M Brand search, fashion search, product filters, clothing catalog, accessories, shoes" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#04040d" />
+  <meta property="og:title" content="M Brand Search | Discover Products" />
+  <meta property="og:description" content="Browse the M Brand catalog with rich filters, fast search, and a premium dark shopping interface." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/m-favicon.svg" />
+  <meta property="og:url" content="/searchPage.html" />
+  <link rel="icon" type="image/svg+xml" href="/m-favicon.svg" />
+  <link rel="shortcut icon" href="/m-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#04040d;--bg-soft:#0c1020;--surface:rgba(255,255,255,.05);--surface-strong:#101526;--surface-border:rgba(255,255,255,.08);--txt:#f0eeff;--mut:#8c92b3;--acc-b:#3a6fd8;--acc-p:#7c3aed;--acc-g:#6366f1;--success:#24d28a;--warn:#ffb84d;--danger:#ff6b7d;--nav-h:78px;--sidebar-w:300px;--shadow:0 24px 80px rgba(0,0,0,.42)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Syne',sans-serif;background:radial-gradient(circle at 18% 18%, rgba(58,111,216,.16), transparent 28%),radial-gradient(circle at 86% 10%, rgba(124,58,237,.14), transparent 24%),linear-gradient(180deg, #070915 0%, #05060d 48%, #05060e 100%);color:var(--txt);min-height:100vh;overflow-x:hidden}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.18) 0 1px, transparent 1px),radial-gradient(circle at 70% 20%, rgba(255,255,255,.14) 0 1px, transparent 1px),radial-gradient(circle at 40% 75%, rgba(255,255,255,.12) 0 1px, transparent 1px),radial-gradient(circle at 85% 60%, rgba(255,255,255,.16) 0 1px, transparent 1px);background-size:240px 240px,320px 320px,280px 280px,360px 360px;opacity:.32}
+    a{text-decoration:none;color:inherit}
+    button,input,select{font:inherit}
+    select{color-scheme:dark}
+    .shell{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+    .topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);background:rgba(4,4,13,.82);border-bottom:1px solid var(--surface-border);box-shadow:0 18px 40px rgba(0,0,0,.24)}
+    .topbar-inner{min-height:var(--nav-h);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px clamp(14px,3vw,28px)}
+    .brand-lockup{display:flex;align-items:center;gap:14px;min-width:0}
+    .brand-mark{width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(99,102,241,.5);display:grid;place-items:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.06em;box-shadow:0 0 24px rgba(99,102,241,.2)}
+    .brand-copy strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.08em;line-height:.9}
+    .brand-copy span{display:block;margin-top:2px;color:var(--mut);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+    .searchbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px 8px 18px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);min-width:0}
+    .searchbar input{width:100%;border:none;outline:none;background:transparent;color:var(--txt);font-size:15px}
+    .searchbar input::placeholder{color:rgba(240,238,255,.45)}
+    .search-actions,.top-links,.hero-metrics,.toolbar-actions,.pill-row,.meta-row,.card-actions,.range-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .chip-select,.icon-btn,.primary-btn{border:none;outline:none;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease}
+    .chip-select{appearance:none;padding:12px 42px 12px 14px;border-radius:999px;background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));color:var(--txt);border:1px solid var(--surface-border);background-image:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04)),linear-gradient(45deg, transparent 50%, var(--txt) 50%),linear-gradient(135deg, var(--txt) 50%, transparent 50%);background-repeat:no-repeat;background-position:0 0, calc(100% - 17px) calc(50% - 3px), calc(100% - 11px) calc(50% - 3px);background-size:auto, 6px 6px, 6px 6px}
+    .icon-btn,.primary-btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px}
+    .icon-btn{width:48px;height:48px;background:linear-gradient(135deg, var(--acc-b), var(--acc-p));color:#fff;box-shadow:0 12px 26px rgba(76,84,228,.3);font-size:19px}
+    .icon-btn{padding:0;line-height:1}
+    .icon-btn svg{width:18px;height:18px;display:block}
+    .primary-btn{padding:12px 18px;background:rgba(255,255,255,.04);border:1px solid var(--surface-border);color:var(--txt);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+    .top-link{padding:11px 14px;border-radius:999px;border:1px solid transparent;color:var(--mut);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;background:none;cursor:pointer}
+    .top-link:hover,.icon-btn:hover,.primary-btn:hover,.chip-select:hover{transform:translateY(-1px);border-color:rgba(99,102,241,.34);box-shadow:0 10px 24px rgba(0,0,0,.22)}
+    .hero-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(14px,3vw,28px);border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(90deg, rgba(11,14,26,.82), rgba(14,17,28,.52))}
+    .hero-copy h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,7vw,88px);letter-spacing:.05em;line-height:.92}
+    .hero-copy p{margin-top:10px;max-width:780px;color:var(--mut);font-size:15px;line-height:1.7}
+    .metric{padding:12px 14px;min-width:132px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+    .metric span{display:block;color:var(--mut);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+    .metric strong{display:block;margin-top:8px;font-size:24px;font-weight:700}
+    .layout{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);gap:24px;padding:24px clamp(14px,3vw,28px) 48px;align-items:start}
+    .sidebar{position:sticky;top:calc(var(--nav-h) + 24px);display:flex;flex-direction:column;gap:18px}
+    .panel,.toolbar,.hero-banner,.product-card,.empty-state{background:rgba(11,14,26,.76);border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)}
+    .panel{border-radius:24px;padding:18px}
+    .panel-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.05em;margin-bottom:10px}
+    .panel-subtitle{color:var(--mut);font-size:13px;line-height:1.6;margin-bottom:16px}
+    .filter-block + .filter-block{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.06)}
+    .filter-block h3{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--txt);margin-bottom:10px}
+    .check-list{display:flex;flex-direction:column;gap:10px;max-height:180px;overflow:auto;padding-right:6px}
+    .check-item{display:flex;align-items:flex-start;gap:10px;color:var(--mut);font-size:14px;line-height:1.45}
+    .check-item input{margin-top:3px;accent-color:var(--acc-g)}
+    .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .price-grid input,.sort-select{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--txt);padding:12px 14px;outline:none;border-radius:14px}
+    .sort-select option,.chip-select option{background:#171b2b;color:#f0eeff}
+    .search-glyph{width:18px;height:18px;display:block;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .range-label,.result-title p,.product-brand,.product-description,.rating-row{color:var(--mut)}
+    .content{min-width:0;display:flex;flex-direction:column;gap:20px}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:18px 22px;border-radius:24px}
+    .result-title h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,4vw,48px);letter-spacing:.05em;line-height:.92}
+    .result-title p{margin-top:6px;font-size:14px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--txt);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+    .pill button{border:none;background:none;color:var(--mut);cursor:pointer;font-size:13px}
+    .hero-banner{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:18px;padding:20px;border-radius:28px;overflow:hidden;background:radial-gradient(circle at top right, rgba(124,58,237,.18), transparent 30%),linear-gradient(135deg, rgba(18,22,36,.92), rgba(11,13,22,.88))}
+    .banner-copy span,.banner-card .tag,.product-badge,.stock-badge,.meta-chip{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+    .banner-copy span{gap:8px;background:rgba(255,255,255,.06);color:var(--mut)}
+    .banner-copy h3{margin-top:16px;font-size:clamp(30px,3.8vw,56px);line-height:.94}
+    .banner-copy p,.banner-card p{margin-top:14px;color:var(--mut);line-height:1.7;max-width:600px}
+    .banner-card{align-self:stretch;border-radius:24px;background:rgba(255,255,255,.04);padding:18px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+    .banner-card strong{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.05em}
+    .banner-card .tag{width:max-content;background:rgba(99,102,241,.14);color:#dfe3ff}
+    .product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .product-card{display:flex;flex-direction:column;min-width:0;border-radius:26px;overflow:hidden;transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease}
+    .product-card:hover{transform:translateY(-6px);border-color:rgba(99,102,241,.35);box-shadow:0 24px 60px rgba(0,0,0,.36)}
+    .product-media{position:relative;aspect-ratio:1/1;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));overflow:hidden}
+    .product-media img{width:100%;height:100%;object-fit:cover;display:block}
+    .badge-row{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .product-badge,.stock-badge{background:rgba(6,8,16,.7);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .stock-badge.out{color:#ffd3d9;border-color:rgba(255,107,125,.22)}
+    .stock-badge.in{color:#c8ffe7;border-color:rgba(36,210,138,.26)}
+    .product-body{display:flex;flex-direction:column;gap:14px;padding:18px}
+    .product-brand{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+    .product-name{font-size:22px;line-height:1.2;font-weight:700}
+    .product-description{font-size:14px;line-height:1.65;min-height:68px}
+    .rating-row{font-size:13px}
+    .stars{color:var(--warn);letter-spacing:.12em;font-size:13px}
+    .price-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+    .price-now{font-size:30px;font-weight:800;line-height:1}
+    .price-old{color:var(--mut);text-decoration:line-through;font-size:15px;line-height:1.2}
+    .meta-chip{background:rgba(255,255,255,.05);color:var(--mut);border:1px solid rgba(255,255,255,.06);letter-spacing:.12em}
+    .card-actions{margin-top:4px}
+    .card-actions button,.card-actions a{flex:1;min-height:46px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+    .card-actions button{background:linear-gradient(135deg, var(--acc-b), var(--acc-p));color:#fff;font-weight:700}
+    .card-actions a{background:rgba(255,255,255,.04);color:var(--txt)}
+    .card-actions button:hover,.card-actions a:hover{transform:translateY(-1px);border-color:rgba(99,102,241,.3)}
+    .empty-state{padding:46px 24px;border-radius:26px;text-align:center}
+    .empty-state h3{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.05em}
+    .empty-state p{margin-top:12px;color:var(--mut);max-width:560px;margin-inline:auto;line-height:1.7}
+    .mobile-filter-btn,.sidebar-overlay{display:none}
+    @media (max-width:1200px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-banner{grid-template-columns:1fr}}
+    @media (max-width:980px){:root{--nav-h:72px}.topbar-inner{grid-template-columns:1fr}.top-links{justify-content:flex-end}.layout{grid-template-columns:1fr}.sidebar{position:fixed;top:0;bottom:0;left:0;width:min(88vw,360px);z-index:70;transform:translateX(-105%);transition:transform .3s ease;padding:18px;background:rgba(5,6,14,.96);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);overflow:auto}body.filters-open .sidebar{transform:translateX(0)}.sidebar-overlay{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.52)}body.filters-open .sidebar-overlay{display:block}.mobile-filter-btn{display:inline-flex}}
+    @media (max-width:720px){.brand-copy span,.top-links .top-link:not(.mobile-filter-btn){display:none}.topbar-inner{padding:12px 14px}.brand-mark{width:46px;height:46px;font-size:28px}.searchbar{padding:8px 8px 8px 14px}.chip-select{display:none}.hero-strip,.layout{padding-left:14px;padding-right:14px}.product-grid{grid-template-columns:1fr}.toolbar{padding:16px}.toolbar-actions{width:100%;justify-content:space-between}.sort-select{min-width:160px}.hero-metrics{justify-content:flex-start}.product-name{font-size:20px}.price-now{font-size:26px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-lockup">
+          <a class="brand-mark" href="/index.html" aria-label="Go to homepage">M</a>
+          <div class="brand-copy">
+            <strong>SEARCH</strong>
+            <span>M Brand catalog explorer</span>
+          </div>
+        </div>
+        <form class="searchbar" id="searchForm">
+          <input id="searchInput" name="q" type="search" placeholder="Search shirts, pants, shoes, accessories..." autocomplete="off" />
+          <div class="search-actions">
+            <select id="quickCategory" class="chip-select" aria-label="Quick category">
+              <option value="">All</option>
+              <option value="shirts">Shirts</option>
+              <option value="pants">Pants</option>
+              <option value="shoes">Shoes</option>
+              <option value="accessories">Accessories</option>
+            </select>
+            <button class="icon-btn" type="submit" aria-label="Search">
+              <svg class="search-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5"></circle>
+                <path d="M16 16l4.5 4.5"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+        <div class="top-links">
+          <button class="top-link mobile-filter-btn" id="openFilters" type="button">Filters</button>
+          <a class="top-link" href="/index.html">Home</a>
+          <a class="top-link" href="/cart.html">Cart <span data-cart-count>0</span></a>
+          <a class="top-link" href="/profile.html" data-auth-label>Sign In</a>
+          <a class="top-link" href="/admin.html" data-admin hidden>Admin</a>
+        </div>
+      </div>
+    </header>
+    <section class="hero-strip">
+      <div class="hero-copy">
+        <h1>SEARCH THE M ARCHIVE</h1>
+        <p>Discover premium essentials across shirts, pants, shoes, and accessories. Filter by style, brand, size, rating, and price while keeping the same futuristic M Brand atmosphere.</p>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric"><span>Catalog</span><strong id="metricCount">0</strong></div>
+        <div class="metric"><span>Categories</span><strong>4</strong></div>
+        <!-- <div class="metric"><span>Powered By</span><strong>MongoDB</strong></div> -->
+      </div>
+    </section>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <main class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="panel">
+          <div class="panel-title">Filters</div>
+          <p class="panel-subtitle">Refine the catalog by category, brand, color, size, rating, stock, and price.</p>
+          <div class="filter-block"><h3>Category</h3><div class="check-list" id="categoryFilters"></div></div>
+          <div class="filter-block"><h3>Brand</h3><div class="check-list" id="brandFilters"></div></div>
+          <div class="filter-block"><h3>Color</h3><div class="check-list" id="colorFilters"></div></div>
+          <div class="filter-block"><h3>Size</h3><div class="check-list" id="sizeFilters"></div></div>
+          <div class="filter-block"><h3>Price Range</h3><div class="price-grid"><input id="minPrice" type="number" min="0" placeholder="Min" /><input id="maxPrice" type="number" min="0" placeholder="Max" /></div><div class="range-row"><span class="range-label" id="priceHint">Loading price range...</span></div></div>
+          <div class="filter-block"><h3>Availability</h3><label class="check-item"><input id="inStockOnly" type="checkbox" /><span>Only show products currently in stock</span></label></div>
+          <div class="filter-block"><h3>Minimum Rating</h3><div class="check-list" id="ratingFilters"><label class="check-item"><input type="radio" name="rating" value="0" checked /><span>All ratings</span></label><label class="check-item"><input type="radio" name="rating" value="4.5" /><span>4.5 stars &amp; up</span></label><label class="check-item"><input type="radio" name="rating" value="4" /><span>4 stars &amp; up</span></label><label class="check-item"><input type="radio" name="rating" value="3.5" /><span>3.5 stars &amp; up</span></label></div></div>
+          <div class="filter-block"><button class="primary-btn" id="clearFilters" type="button">Clear All</button></div>
+        </div>
+      </aside>
+      <section class="content">
+        <div class="toolbar">
+          <div class="result-title">
+            <h2 id="resultsHeading">All Products</h2>
+            <p id="resultsMeta">Loading products...</p>
+          </div>
+          <div class="toolbar-actions">
+            <div class="pill-row" id="activePills"></div>
+            <select class="sort-select" id="sortSelect" aria-label="Sort products">
+              <option value="featured">Sort: Featured</option>
+              <option value="rating">Sort: Rating</option>
+              <option value="price_asc">Sort: Price low to high</option>
+              <option value="price_desc">Sort: Price high to low</option>
+              <option value="newest">Sort: Newest</option>
+            </select>
+          </div>
+        </div>
+        <!-- <section class="hero-banner">
+          <div class="banner-copy">
+            <span>Curated Search Experience</span>
+            <h3>Discover related products fast, then refine like a pro.</h3>
+            <p>This page is backed by a real product API and supports live keyword search, categories, color filters, size filters, pricing, stock, and sorting.</p>
+          </div>
+          <div class="banner-card">
+            <div><div class="tag">Catalog experience</div><strong>Browse the archive in M Brand style.</strong></div>
+            <p>Everything is served from the backend so the page can scale from seed data today to a larger fashion catalog later.</p>
+          </div>
+        </section> -->
+        <div class="product-grid" id="productGrid"></div>
+        <div class="empty-state" id="emptyState" hidden><h3>No Results</h3><p>Try a broader keyword, remove a few filters, or search another category to explore the catalog.</p></div>
+      </section>
+    </main>
+  </div>
+  <script src="/shared-store.js"></script>
+  <script>
+    const elements={searchForm:document.getElementById("searchForm"),searchInput:document.getElementById("searchInput"),quickCategory:document.getElementById("quickCategory"),sortSelect:document.getElementById("sortSelect"),productGrid:document.getElementById("productGrid"),emptyState:document.getElementById("emptyState"),resultsHeading:document.getElementById("resultsHeading"),resultsMeta:document.getElementById("resultsMeta"),activePills:document.getElementById("activePills"),metricCount:document.getElementById("metricCount"),categoryFilters:document.getElementById("categoryFilters"),brandFilters:document.getElementById("brandFilters"),colorFilters:document.getElementById("colorFilters"),sizeFilters:document.getElementById("sizeFilters"),minPrice:document.getElementById("minPrice"),maxPrice:document.getElementById("maxPrice"),inStockOnly:document.getElementById("inStockOnly"),clearFilters:document.getElementById("clearFilters"),priceHint:document.getElementById("priceHint"),openFilters:document.getElementById("openFilters"),sidebarOverlay:document.getElementById("sidebarOverlay")};
+    const state={q:"",category:[],brand:[],color:[],size:[],minPrice:"",maxPrice:"",minRating:"0",inStock:false,sort:"featured",filters:{categories:[],brands:[],colors:[],sizes:[],priceRange:{minPrice:0,maxPrice:0}}};
+    const categoryLabels={shirts:"Shirts",pants:"Pants",shoes:"Shoes",accessories:"Accessories"};
+    function formatCurrency(value){return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(value||0)}
+    function ratingStars(value){const full=Math.round(value);return "★".repeat(Math.max(0,Math.min(5,full)))+"☆".repeat(Math.max(0,5-full))}
+    function updateUrl(){const params=new URLSearchParams();if(state.q)params.set("q",state.q);if(state.category.length)params.set("category",state.category.join(","));if(state.brand.length)params.set("brand",state.brand.join(","));if(state.color.length)params.set("color",state.color.join(","));if(state.size.length)params.set("size",state.size.join(","));if(state.minPrice)params.set("minPrice",state.minPrice);if(state.maxPrice)params.set("maxPrice",state.maxPrice);if(state.minRating&&state.minRating!=="0")params.set("minRating",state.minRating);if(state.inStock)params.set("inStock","true");if(state.sort&&state.sort!=="featured")params.set("sort",state.sort);const next=`${window.location.pathname}${params.toString()?`?${params.toString()}`:""}`;window.history.replaceState({}, "", next)}
+    function hydrateStateFromUrl(){const params=new URLSearchParams(window.location.search);state.q=params.get("q")||"";state.category=(params.get("category")||"").split(",").filter(Boolean);state.brand=(params.get("brand")||"").split(",").filter(Boolean);state.color=(params.get("color")||"").split(",").filter(Boolean);state.size=(params.get("size")||"").split(",").filter(Boolean);state.minPrice=params.get("minPrice")||"";state.maxPrice=params.get("maxPrice")||"";state.minRating=params.get("minRating")||"0";state.inStock=params.get("inStock")==="true";state.sort=params.get("sort")||"featured"}
+    function makeCheckboxList(container,values,activeValues,groupName){container.innerHTML="";if(!values.length){container.innerHTML='<span class="panel-subtitle">No options found.</span>';return}values.forEach((value)=>{const label=document.createElement("label");label.className="check-item";label.innerHTML=`<input type="checkbox" name="${groupName}" value="${value}" ${activeValues.includes(value)?"checked":""} /><span>${groupName==="category"?(categoryLabels[value]||value):value}</span>`;container.appendChild(label)})}
+    function syncInputs(){elements.searchInput.value=state.q;elements.quickCategory.value=state.category.length===1?state.category[0]:"";elements.sortSelect.value=state.sort;elements.minPrice.value=state.minPrice;elements.maxPrice.value=state.maxPrice;elements.inStockOnly.checked=state.inStock;makeCheckboxList(elements.categoryFilters,state.filters.categories,state.category,"category");makeCheckboxList(elements.brandFilters,state.filters.brands,state.brand,"brand");makeCheckboxList(elements.colorFilters,state.filters.colors,state.color,"color");makeCheckboxList(elements.sizeFilters,state.filters.sizes,state.size,"size");const ratingInput=document.querySelector(`input[name="rating"][value="${state.minRating}"]`);if(ratingInput)ratingInput.checked=true;const {minPrice,maxPrice}=state.filters.priceRange;elements.priceHint.textContent=`Catalog span: ${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`}
+    function bindDynamicFilterEvents(){["category","brand","color","size"].forEach((groupName)=>{document.querySelectorAll(`input[name="${groupName}"]`).forEach((input)=>{input.addEventListener("change",()=>{const nextValues=Array.from(document.querySelectorAll(`input[name="${groupName}"]:checked`)).map((item)=>item.value);state[groupName]=nextValues;if(groupName==="category"&&nextValues.length!==1){elements.quickCategory.value=""}updateUrl();renderPills();loadProducts()})})})}
+    function renderPills(){const pills=[];if(state.q)pills.push({key:"q",label:`Search: ${state.q}`});state.category.forEach((value)=>pills.push({key:"category",value,label:categoryLabels[value]||value}));state.brand.forEach((value)=>pills.push({key:"brand",value,label:value}));state.color.forEach((value)=>pills.push({key:"color",value,label:value}));state.size.forEach((value)=>pills.push({key:"size",value,label:`Size ${value}`}));if(state.minPrice||state.maxPrice)pills.push({key:"price",label:`${state.minPrice||0} - ${state.maxPrice||"max"}`});if(state.minRating!=="0")pills.push({key:"rating",label:`${state.minRating}+ stars`});if(state.inStock)pills.push({key:"stock",label:"In stock"});elements.activePills.innerHTML="";pills.forEach((pill)=>{const node=document.createElement("div");node.className="pill";node.innerHTML=`<span>${pill.label}</span><button type="button" aria-label="Remove filter">×</button>`;node.querySelector("button").addEventListener("click",()=>{switch(pill.key){case "q":state.q="";break;case "category":case "brand":case "color":case "size":state[pill.key]=state[pill.key].filter((entry)=>entry!==pill.value);break;case "price":state.minPrice="";state.maxPrice="";break;case "rating":state.minRating="0";break;case "stock":state.inStock=false;break}updateUrl();syncInputs();bindDynamicFilterEvents();renderPills();loadProducts()});elements.activePills.appendChild(node)})}
+    function renderProducts(products,meta){elements.metricCount.textContent=meta.total;elements.resultsHeading.textContent=state.q?`Results for "${state.q}"`:"All Products";elements.resultsMeta.textContent=`${meta.total} products found across the M Brand catalog.`;if(!products.length){elements.productGrid.innerHTML="";elements.emptyState.hidden=false;return}elements.emptyState.hidden=true;elements.productGrid.innerHTML=products.map((product)=>`<article class="product-card"><div class="product-media"><img src="${product.imageUrl}" alt="${product.name}" loading="lazy" /><div class="badge-row"><span class="product-badge">${product.badge||product.subcategory}</span><span class="stock-badge ${product.inStock?"in":"out"}">${product.inStock?"In stock":"Out of stock"}</span></div></div><div class="product-body"><div class="product-brand">${product.brand}</div><h3 class="product-name">${product.name}</h3><p class="product-description">${product.description}</p><div class="rating-row"><span class="stars">${ratingStars(product.rating)}</span><span>${product.rating.toFixed(1)} (${product.reviewCount} reviews)</span></div><div class="price-row"><strong class="price-now">${formatCurrency(product.price)}</strong>${product.originalPrice?`<span class="price-old">${formatCurrency(product.originalPrice)}</span>`:""}</div><div class="meta-row"><span class="meta-chip">${product.subcategory}</span><span class="meta-chip">${product.shippingTag||"Ships soon"}</span></div><div class="card-actions"><button type="button" data-add-cart="${product._id}">Add To Bag</button><a href="/product/${product.slug}">Preview</a></div></div></article>`).join("");document.querySelectorAll("[data-add-cart]").forEach((button)=>button.addEventListener("click",async()=>{try{await MStore.addToCart(button.dataset.addCart,1);MStore.hydrateNav({cart:document.querySelectorAll("[data-cart-count]"),authLabel:document.querySelectorAll("[data-auth-label]"),admin:document.querySelectorAll("[data-admin]")});button.textContent="Added";MStore.toast({tone:"success",title:"Added To Bag",message:"Item added to your cart."})}catch(error){button.textContent=error.message;MStore.toast({tone:"error",title:"Could Not Add",message:error.message})}}))}
+    async function loadFilters(){const response=await fetch(`/api/filters${state.q?`?q=${encodeURIComponent(state.q)}`:""}`);if(!response.ok)throw new Error("Failed to load filters");const payload=await response.json();state.filters={categories:payload.categories||[],brands:payload.brands||[],colors:payload.colors||[],sizes:payload.sizes||[],priceRange:payload.priceRange||{minPrice:0,maxPrice:0}};syncInputs();bindDynamicFilterEvents()}
+    async function loadProducts(){const params=new URLSearchParams();if(state.q)params.set("q",state.q);if(state.category.length)params.set("category",state.category.join(","));if(state.brand.length)params.set("brand",state.brand.join(","));if(state.color.length)params.set("color",state.color.join(","));if(state.size.length)params.set("size",state.size.join(","));if(state.minPrice)params.set("minPrice",state.minPrice);if(state.maxPrice)params.set("maxPrice",state.maxPrice);if(state.minRating&&state.minRating!=="0")params.set("minRating",state.minRating);if(state.inStock)params.set("inStock","true");if(state.sort)params.set("sort",state.sort);elements.resultsMeta.textContent="Loading products...";const response=await fetch(`/api/products?${params.toString()}`);if(!response.ok)throw new Error("Failed to load products");const payload=await response.json();renderProducts(payload.products||[],payload.meta||{total:0})}
+    function closeFilters(){document.body.classList.remove("filters-open")}
+    function initEvents(){elements.searchForm.addEventListener("submit",async(event)=>{event.preventDefault();state.q=elements.searchInput.value.trim();const quickCategory=elements.quickCategory.value;state.category=quickCategory?[quickCategory]:state.category;updateUrl();await loadFilters();renderPills();await loadProducts()});elements.quickCategory.addEventListener("change",async()=>{state.category=elements.quickCategory.value?[elements.quickCategory.value]:[];updateUrl();await loadFilters();renderPills();await loadProducts()});elements.sortSelect.addEventListener("change",async()=>{state.sort=elements.sortSelect.value;updateUrl();renderPills();await loadProducts()});elements.minPrice.addEventListener("change",async()=>{state.minPrice=elements.minPrice.value.trim();updateUrl();renderPills();await loadProducts()});elements.maxPrice.addEventListener("change",async()=>{state.maxPrice=elements.maxPrice.value.trim();updateUrl();renderPills();await loadProducts()});elements.inStockOnly.addEventListener("change",async()=>{state.inStock=elements.inStockOnly.checked;updateUrl();renderPills();await loadProducts()});document.querySelectorAll('input[name="rating"]').forEach((input)=>{input.addEventListener("change",async()=>{state.minRating=input.value;updateUrl();renderPills();await loadProducts()})});elements.clearFilters.addEventListener("click",async()=>{state.q="";state.category=[];state.brand=[];state.color=[];state.size=[];state.minPrice="";state.maxPrice="";state.minRating="0";state.inStock=false;state.sort="featured";updateUrl();await loadFilters();renderPills();await loadProducts()});elements.openFilters.addEventListener("click",()=>{document.body.classList.add("filters-open")});elements.sidebarOverlay.addEventListener("click",closeFilters);window.addEventListener("resize",()=>{if(window.innerWidth>980)closeFilters()})}
+    async function bootstrap(){hydrateStateFromUrl();initEvents();try{MStore.hydrateNav({cart:document.querySelectorAll("[data-cart-count]"),authLabel:document.querySelectorAll("[data-auth-label]"),admin:document.querySelectorAll("[data-admin]")});await loadFilters();renderPills();await loadProducts()}catch(error){console.error(error);elements.resultsHeading.textContent="Catalog Offline";elements.resultsMeta.textContent="Start the local backend and product database to load products.";elements.productGrid.innerHTML="";elements.emptyState.hidden=false;elements.emptyState.querySelector("h3").textContent="Store Not Reachable";elements.emptyState.querySelector("p").textContent="This page needs the local product API. Start the backend, seed the database if needed, and refresh the page."}}
+    bootstrap();
+  </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M Brand Cart | Review Your Bag</title>
+  <meta name="description" content="Review your M Brand bag, update quantities, and move through checkout with a clean premium cart experience." />
+  <meta name="keywords" content="M Brand cart, shopping bag, checkout, fashion order, online cart" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#04040d" />
+  <meta property="og:title" content="M Brand Cart | Review Your Bag" />
+  <meta property="og:description" content="Keep track of selected M Brand pieces and prepare your order for checkout." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/m-favicon.svg" />
+  <meta property="og:url" content="/cart.html" />
+  <link rel="icon" type="image/svg+xml" href="/m-favicon.svg" />
+  <link rel="shortcut icon" href="/m-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/storefront-shell.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="page-nav">
+      <div class="brand-pill">
+        <a class="brand-mark" href="/index.html">M</a>
+        <div class="brand-copy"><strong>CART</strong><span>Your selected M Brand pieces</span></div>
+      </div>
+      <div class="page-nav-right">
+        <a class="nav-link" href="/searchPage.html">Continue Shopping</a>
+        <a class="nav-icon" href="/profile.html"><span class="count-badge" data-cart-count>0</span>🛒</a>
+      </div>
+    </header>
+    <main class="page-main">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Bag & checkout</div>
+          <h1>READY TO<br />CHECK OUT?</h1>
+          <p>Add items freely as a guest. When you place the order, the flow will ask you to sign in if needed and then complete the purchase.</p>
+        </div>
+      </section>
+      <section class="grid two" style="margin-top:20px;align-items:start">
+        <div class="panel">
+          <h2>Your Bag</h2>
+          <div id="cartItems" class="stack"></div>
+        </div>
+        <div class="panel">
+          <h2>Summary</h2>
+          <div class="stack">
+            <div class="stat"><span class="eyebrow">Items</span><strong id="summaryCount">0</strong></div>
+            <div class="stat"><span class="eyebrow">Subtotal</span><strong id="summarySubtotal">₹0</strong></div>
+            <div class="notice" id="cartNotice">Checkout will prompt for sign in only if you are not already signed in.</div>
+            <button class="btn" id="checkoutBtn" type="button">Proceed To Checkout</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/shared-store.js"></script>
+  <script>
+    const cartItems = document.getElementById("cartItems");
+    const summaryCount = document.getElementById("summaryCount");
+    const summarySubtotal = document.getElementById("summarySubtotal");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    const cartNotice = document.getElementById("cartNotice");
+
+    function money(value){
+      return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(value||0);
+    }
+
+    async function renderCart(){
+      const cart = await MStore.getCart();
+      summaryCount.textContent = cart.count || 0;
+      summarySubtotal.textContent = money(cart.subtotal || 0);
+      document.querySelectorAll("[data-cart-count]").forEach((node)=>{ node.textContent = cart.count || 0; });
+
+      if (!cart.items.length) {
+        cartItems.innerHTML = '<div class="notice">Your cart is empty. Start from the search page or homepage and add a few products.</div>';
+        return;
+      }
+
+      cartItems.innerHTML = cart.items.map((item)=>`
+        <div class="card">
+          <div class="card-body" style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center">
+            <img src="${item.product.imageUrl}" alt="${item.product.name}" style="width:120px;height:120px;object-fit:cover;border-radius:18px;border:1px solid rgba(255,255,255,.08)" />
+            <div class="stack">
+              <div class="eyebrow">${item.product.brand}</div>
+              <h3 style="margin:0">${item.product.name}</h3>
+              <div class="muted">${item.product.subcategory}</div>
+              <div class="page-actions">
+                <button class="ghost-btn" type="button" data-dec="${item.product._id}">-</button>
+                <span class="pill">Qty ${item.quantity}</span>
+                <button class="ghost-btn" type="button" data-inc="${item.product._id}">+</button>
+                <button class="ghost-btn" type="button" data-remove="${item.product._id}">Remove</button>
+              </div>
+              <strong>${money(item.lineTotal)}</strong>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      cartItems.querySelectorAll("[data-inc]").forEach((btn)=>btn.addEventListener("click", async ()=>{ const id=btn.dataset.inc; const item=cart.items.find((entry)=>entry.product._id===id); await MStore.updateCartItem(id, item.quantity+1); MStore.toast({ tone:"info", title:"Bag Updated", message:"Quantity increased."}); renderCart(); }));
+      cartItems.querySelectorAll("[data-dec]").forEach((btn)=>btn.addEventListener("click", async ()=>{ const id=btn.dataset.dec; const item=cart.items.find((entry)=>entry.product._id===id); await MStore.updateCartItem(id, Math.max(0,item.quantity-1)); MStore.toast({ tone:"info", title:"Bag Updated", message:"Quantity changed."}); renderCart(); }));
+      cartItems.querySelectorAll("[data-remove]").forEach((btn)=>btn.addEventListener("click", async ()=>{ await MStore.removeCartItem(btn.dataset.remove); MStore.toast({ tone:"info", title:"Removed", message:"Item removed from your bag."}); renderCart(); }));
+    }
+
+    checkoutBtn.addEventListener("click", async ()=>{
+      const session = await MStore.getSession();
+      if (!session) {
+        MStore.toast({ tone:"info", title:"Sign In Required", message:"Sign in to place the order and keep your bag." });
+        window.location.href = "/auth.html?redirect=/cart.html?checkout=1";
+        return;
+      }
+      try {
+        const address = session.addresses && session.addresses[0] ? session.addresses[0] : {
+          fullName: session.name,
+          line1: "M Brand Address Placeholder",
+          city: "Pune",
+          state: "Maharashtra",
+          postalCode: "411001",
+          country: "India"
+        };
+        const result = await MStore.api("/api/orders/checkout", {
+          method: "POST",
+          body: JSON.stringify({ shippingAddress: address })
+        });
+        cartNotice.textContent = `Order placed successfully. Order id: ${result.order._id}`;
+        MStore.toast({ tone:"success", title:"Order Placed", message:`Your order ${result.order._id.slice(-8)} is confirmed.` });
+        renderCart();
+      } catch (error) {
+        cartNotice.textContent = error.message;
+        MStore.toast({ tone:"error", title:"Checkout Failed", message:error.message });
+      }
+    });
+
+    MStore.hydrateNav({ cart: document.querySelectorAll("[data-cart-count]") });
+    renderCart();
+  </script>
+</body>
+</html>

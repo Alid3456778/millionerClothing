@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M Brand Admin Login | Control Room Access</title>
+  <meta name="description" content="Secure admin access for the M Brand control room to manage products, orders, and storefront operations." />
+  <meta name="keywords" content="M Brand admin login, store admin, order management, product management" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#04040d" />
+  <meta property="og:title" content="M Brand Admin Login | Control Room Access" />
+  <meta property="og:description" content="Sign in to the M Brand admin control room for product and order management." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/m-favicon.svg" />
+  <meta property="og:url" content="/admin-login.html" />
+  <link rel="icon" type="image/svg+xml" href="/m-favicon.svg" />
+  <link rel="shortcut icon" href="/m-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/storefront-shell.css" />
+</head>
+<body>
+  <div class="shell">
+    <main class="page-main" style="max-width:680px;margin:0 auto;padding-top:60px">
+      <section class="panel">
+        <div class="eyebrow">Admin access</div>
+        <h1 style="margin:0;font-family:'Bebas Neue',sans-serif;font-size:70px;letter-spacing:.05em;line-height:.9">CONTROL<br />ROOM</h1>
+        <p class="muted" style="margin-top:14px">Sign in with an admin account to manage products and orders.</p>
+        <form id="adminLoginForm" class="stack" style="margin-top:18px">
+          <input class="field" name="email" type="email" placeholder="Admin email" required />
+          <input class="field" name="password" type="password" placeholder="Password" required />
+          <button class="btn" type="submit">Sign In As Admin</button>
+        </form>
+        <div class="notice" id="adminNotice" style="margin-top:16px">Use an admin account already stored in the database.</div>
+      </section>
+    </main>
+  </div>
+  <script src="/shared-store.js"></script>
+  <script>
+    document.getElementById("adminLoginForm").addEventListener("submit", async (event)=>{
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const notice = document.getElementById("adminNotice");
+      try {
+        const session = await MStore.login({ email: form.get("email"), password: form.get("password") });
+        if (!session.isAdmin) throw new Error("This account is not an admin.");
+        MStore.toast({ tone:"success", title:"Admin Access", message:"Dashboard unlocked." });
+        window.location.href = "/admin.html";
+      } catch (error) {
+        notice.textContent = error.message;
+        MStore.toast({ tone:"error", title:"Admin Sign In Failed", message:error.message });
+      }
+    });
+  </script>
+</body>
+</html>

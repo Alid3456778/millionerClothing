@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M Brand Profile | Orders And Account</title>
+  <meta name="description" content="Manage your M Brand profile, saved details, and order history from one premium account page." />
+  <meta name="keywords" content="M Brand profile, order history, account details, fashion orders, user profile" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#04040d" />
+  <meta property="og:title" content="M Brand Profile | Orders And Account" />
+  <meta property="og:description" content="Track purchases, update account details, and review your M Brand order history." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/m-favicon.svg" />
+  <meta property="og:url" content="/profile.html" />
+  <link rel="icon" type="image/svg+xml" href="/m-favicon.svg" />
+  <link rel="shortcut icon" href="/m-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/storefront-shell.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="page-nav">
+      <div class="brand-pill">
+        <a class="brand-mark" href="/index.html">M</a>
+        <div class="brand-copy"><strong>PROFILE</strong><span>Your details and order history</span></div>
+      </div>
+      <div class="page-nav-right">
+        <a class="nav-link" href="/searchPage.html">Search</a>
+        <a class="nav-icon" href="/cart.html">🛒<span class="count-badge" data-cart-count>0</span></a>
+        <button class="ghost-btn" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </header>
+    <main class="page-main">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Account area</div>
+          <h1>YOUR M BRAND<br />ACCOUNT</h1>
+          <p>See your saved details, past orders, and the address used for checkout.</p>
+        </div>
+      </section>
+      <section class="grid two" style="margin-top:20px;align-items:start">
+        <div class="panel" id="profilePanel"></div>
+        <div class="panel" id="ordersPanel"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/shared-store.js"></script>
+  <script>
+    const profilePanel = document.getElementById("profilePanel");
+    const ordersPanel = document.getElementById("ordersPanel");
+    document.getElementById("logoutBtn").addEventListener("click", async ()=>{ await MStore.logout(); MStore.toast({ tone:"info", title:"Signed Out", message:"You have been signed out safely." }); window.location.href="/index.html"; });
+    async function loadProfile(){
+      const session = await MStore.getSession();
+      if (!session) { window.location.href="/auth.html?redirect=/profile.html"; return; }
+      const orders = await MStore.api("/api/orders/me");
+      profilePanel.innerHTML = `
+        <div class="eyebrow">Personal details</div>
+        <h2>${session.name}</h2>
+        <div class="muted">${session.email}</div>
+        <div class="muted">${session.phone || "No phone saved yet"}</div>
+        <div class="notice" style="margin-top:16px">${session.addresses && session.addresses[0] ? `${session.addresses[0].line1}, ${session.addresses[0].city}` : "No saved address yet. Your first checkout will store one."}</div>
+      `;
+      ordersPanel.innerHTML = `
+        <div class="eyebrow">Purchases</div>
+        <h2>Orders</h2>
+        ${orders.orders.length ? orders.orders.map((order)=>`<div class="card" style="margin-top:12px"><div class="card-body"><div class="page-actions" style="justify-content:space-between"><strong>${order._id.slice(-8)}</strong><span class="pill">${order.status}</span></div><div class="muted" style="margin-top:8px">${new Date(order.createdAt).toLocaleString()}</div><div style="margin-top:8px;font-weight:700">${new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(order.total)}</div><div class="muted" style="margin-top:8px">${order.items.map((item)=>item.name).join(", ")}</div></div></div>`).join("") : '<div class="notice">No orders yet. Your completed checkouts will appear here.</div>'}
+      `;
+      MStore.hydrateNav({ cart: document.querySelectorAll("[data-cart-count]") });
+    }
+    loadProfile();
+  </script>
+</body>
+</html>

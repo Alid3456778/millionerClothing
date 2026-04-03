@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="mbrandGlow" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3a6fd8"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="#060812"/>
+  <rect x="4.5" y="4.5" width="55" height="55" rx="16" fill="none" stroke="url(#mbrandGlow)" stroke-opacity=".9"/>
+  <path d="M16 46V18h8l8 12 8-12h8v28h-7V29l-7.7 11.1h-2.6L23 29v17z" fill="#f4f1ff"/>
+</svg>

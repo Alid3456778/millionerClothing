@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M Brand Product | Premium Fashion Detail</title>
+  <meta name="description" content="View detailed M Brand product information, pricing, sizes, colors, and purchase options in a premium product detail experience." />
+  <meta name="keywords" content="M Brand product, fashion detail page, clothing product, accessories product, buy fashion online" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#04040d" />
+  <meta property="og:title" content="M Brand Product | Premium Fashion Detail" />
+  <meta property="og:description" content="Inspect product details, sizes, colors, ratings, and cart actions for premium M Brand pieces." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/m-favicon.svg" />
+  <meta property="og:url" content="/product.html" />
+  <link rel="icon" type="image/svg+xml" href="/m-favicon.svg" />
+  <link rel="shortcut icon" href="/m-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/storefront-shell.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="page-nav">
+      <div class="brand-pill">
+        <a class="brand-mark" href="/index.html">M</a>
+        <div class="brand-copy"><strong>DETAIL</strong><span>Single product view</span></div>
+      </div>
+      <div class="page-nav-right">
+        <a class="nav-link" href="/searchPage.html">Search</a>
+        <a class="nav-icon" href="/cart.html">🛒<span class="count-badge" data-cart-count>0</span></a>
+        <a class="avatar-chip" href="/profile.html" data-avatar>G</a>
+      </div>
+    </header>
+    <main class="page-main">
+      <section class="grid two">
+        <div class="panel" id="productMedia"></div>
+        <div class="panel" id="productInfo"></div>
+      </section>
+      <section class="panel" style="margin-top:20px">
+        <h2>Related Products</h2>
+        <div class="mini-grid" id="relatedProducts"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/shared-store.js"></script>
+  <script>
+    function money(value){ return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(value||0); }
+    function getSlug(){ const p=window.location.pathname.split("/").filter(Boolean); return p[p.length-1] && p[p.length-1] !== "product.html" ? p[p.length-1] : new URLSearchParams(window.location.search).get("slug"); }
+    async function load(){
+      const slug = getSlug();
+      const payload = await MStore.api(`/api/products/slug/${encodeURIComponent(slug)}`);
+      const product = payload.product;
+      document.title = `${product.name} - M Brand`;
+      document.getElementById("productMedia").innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:24px;border:1px solid rgba(255,255,255,.08)" />`;
+      document.getElementById("productInfo").innerHTML = `
+        <div class="eyebrow">${product.brand} / ${product.subcategory}</div>
+        <h1 style="margin:10px 0 0;font-family:'Bebas Neue',sans-serif;font-size:58px;line-height:.9;letter-spacing:.05em">${product.name}</h1>
+        <p class="muted" style="margin-top:14px;line-height:1.8">${product.description}</p>
+        <div class="page-actions" style="margin-top:16px">
+          <span class="pill">${product.rating.toFixed(1)} rating</span>
+          <span class="pill">${product.reviewCount} reviews</span>
+          <span class="pill">${product.inStock ? "In stock" : "Out of stock"}</span>
+        </div>
+        <div style="margin-top:18px;font-size:40px;font-weight:800">${money(product.price)}</div>
+        <div class="muted">${product.originalPrice ? `M.R.P. ${money(product.originalPrice)}` : ""}</div>
+        <div class="page-actions" style="margin-top:18px">
+        <button class="btn" id="addToCartBtn" type="button">Add To Bag</button>
+          <a class="ghost-btn" href="/searchPage.html?category=${encodeURIComponent(product.category)}">More Like This</a>
+        </div>
+        <div class="notice" id="productNotice" style="margin-top:16px">${product.shippingTag || "Ships soon"}</div>
+      `;
+      document.getElementById("addToCartBtn").addEventListener("click", async ()=>{
+        await MStore.addToCart(product._id, 1);
+        document.getElementById("productNotice").textContent = "Added to cart.";
+        MStore.toast({ tone:"success", title:"Added To Bag", message:`${product.name} is now in your cart.` });
+        MStore.hydrateNav({ cart: document.querySelectorAll("[data-cart-count]"), avatar: document.querySelectorAll("[data-avatar]") });
+      });
+      document.getElementById("relatedProducts").innerHTML = (payload.related || []).map((item)=>`<a class="card" href="/product/${item.slug}"><img src="${item.imageUrl}" alt="${item.name}" style="width:100%;aspect-ratio:1/1;object-fit:cover" /><div class="card-body"><div class="eyebrow">${item.brand}</div><h3>${item.name}</h3><div class="muted">${money(item.price)}</div></div></a>`).join("");
+    }
+    MStore.hydrateNav({ cart: document.querySelectorAll("[data-cart-count]"), avatar: document.querySelectorAll("[data-avatar]") });
+    load().catch((error)=>{ document.getElementById("productInfo").innerHTML = `<div class="notice">${error.message}</div>`; });
+  </script>
+</body>
+</html>

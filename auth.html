@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M Brand Account | Sign In Or Create Profile</title>
+  <meta name="description" content="Sign in or create your M Brand account to save your profile, continue checkout, and manage your order history." />
+  <meta name="keywords" content="M Brand login, M Brand register, account sign in, fashion account, checkout login" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#04040d" />
+  <meta property="og:title" content="M Brand Account | Sign In Or Create Profile" />
+  <meta property="og:description" content="Access your M Brand account to continue checkout, save details, and manage your shopping journey." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/m-favicon.svg" />
+  <meta property="og:url" content="/auth.html" />
+  <link rel="icon" type="image/svg+xml" href="/m-favicon.svg" />
+  <link rel="shortcut icon" href="/m-favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/storefront-shell.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="page-nav">
+      <div class="brand-pill">
+        <a class="brand-mark" href="/index.html">M</a>
+        <div class="brand-copy"><strong></strong><span>Sign in when you are ready to checkout</span></div>
+      </div>
+      <div class="page-nav-right">
+        <a class="nav-link" href="/searchPage.html">Search</a>
+        <a class="nav-link" href="/cart.html">Cart</a>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Checkout-ready account</div>
+          <h1>SHOP FIRST.<br />SIGN IN WHEN IT COUNTS.</h1>
+          <p>You can explore the full storefront before signing in. When you are ready to place the order, sign in or create an account and we will carry your cart forward.</p>
+        </div>
+      </section>
+
+      <section class="grid two" style="margin-top:20px">
+        <div class="panel">
+          <div class="eyebrow">Sign in</div>
+          <h2>Welcome Back</h2>
+          <form class="stack" id="loginForm">
+            <input class="field" name="email" type="email" placeholder="Email" required />
+            <input class="field" name="password" type="password" placeholder="Password" required />
+            <button class="btn" type="submit">Sign In</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="eyebrow">Register</div>
+          <h2>Create Account</h2>
+          <form class="stack" id="registerForm">
+            <input class="field" name="name" type="text" placeholder="Full name" required />
+            <input class="field" name="email" type="email" placeholder="Email" required />
+            <input class="field" name="phone" type="text" placeholder="Phone" />
+            <input class="field" name="password" type="password" placeholder="Password" required />
+            <button class="btn" type="submit">Register</button>
+          </form>
+        </div>
+      </section>
+
+      <div class="panel" style="margin-top:20px">
+        <div class="notice" id="authNotice">Use your account when you want to place an order or manage your profile.</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/shared-store.js"></script>
+  <script>
+    const redirectTo = new URLSearchParams(window.location.search).get("redirect") || "/profile.html";
+    const notice = document.getElementById("authNotice");
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      try {
+        await MStore.login({
+          email: form.get("email"),
+          password: form.get("password")
+        });
+        MStore.toast({ tone: "success", title: "Signed In", message: "Your account is ready and your bag is synced." });
+        window.location.href = redirectTo;
+      } catch (error) {
+        notice.textContent = error.message;
+        MStore.toast({ tone: "error", title: "Sign In Failed", message: error.message });
+      }
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      try {
+        await MStore.register({
+          name: form.get("name"),
+          email: form.get("email"),
+          phone: form.get("phone"),
+          password: form.get("password")
+        });
+        MStore.toast({ tone: "success", title: "Account Created", message: "Your profile is live and your bag is ready." });
+        window.location.href = redirectTo;
+      } catch (error) {
+        notice.textContent = error.message;
+        MStore.toast({ tone: "error", title: "Registration Failed", message: error.message });
+      }
+    });
+  </script>
+</body>
+</html>
