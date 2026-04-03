@@ -52,14 +52,11 @@ body.chov #clbl{opacity:1}
 /* ── LOADER ──────────────────────────────────────────────── */
 #loader{position:fixed;inset:0;z-index:1000;background:#02020a;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
-#lcv{width:min(320px,72vw);height:min(320px,42vh);display:block;
-  filter:drop-shadow(0 24px 60px rgba(58,111,216,.18))}
 #llogo{font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,12vw,110px);
   letter-spacing:.08em;opacity:0;transition:opacity .7s}
 #lbar-w{width:min(340px,80vw);height:2px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
 #lbar{height:100%;width:0%;background:linear-gradient(90deg,var(--acc-b),var(--acc-p));transition:width .08s linear}
 #ltxt{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--mut);text-transform:uppercase}
-#lsub{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:rgba(240,238,255,.48);text-transform:uppercase;margin-top:-14px}
 
 /* Tape — yellow-black hazard style like reference */
 #tape{
@@ -398,7 +395,6 @@ body.chov #clbl{opacity:1}
     width:min(100%,320px);
     height:min(46svh,380px);
   }
-  #lcv{width:min(260px,70vw);height:min(260px,32vh)}
   #vdrawer{
     padding:12px 14px calc(14px + env(safe-area-inset-bottom));
     z-index:26;
@@ -464,11 +460,9 @@ footer{padding:40px clamp(16px,4vw,64px);border-top:1px solid var(--bdr);
 <canvas id="gal" aria-hidden="true"></canvas>
 
 <div id="loader" role="status">
-  <canvas id="lcv" aria-hidden="true"></canvas>
   <div id="llogo">M</div>
   <div id="lbar-w"><div id="lbar"></div></div>
   <div id="ltxt">Loading Experience...</div>
-  <div id="lsub">Preparing live 3D previews</div>
 </div>
 
 <div id="tape" aria-hidden="true">
@@ -588,6 +582,9 @@ footer{padding:40px clamp(16px,4vw,64px);border-top:1px solid var(--bdr);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/DRACOLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/KTX2Loader.js"></script>
+<script src="https://unpkg.com/meshoptimizer@0.20.0/meshopt_decoder.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
@@ -690,6 +687,8 @@ var scene,camera,renderer,mesh=null;
 var drag=false,pmx=0,pmy=0,tRotY=0,tRotX=0,cRotY=0,cRotX=0,autoRot=true;
 var modelTargetScale=1;
 var gltfLoader=null;
+var dracoLoader=null;
+var ktx2Loader=null;
 var modelCache={};
 var activeModelToken=0;
 var preloadList=[];
@@ -755,10 +754,10 @@ function queueSectionPreload(secId){
   pumpModelPreload();
 }
 
-function queueAllModelPreloads(){
-  SECS.forEach(function(sec){
-    sec.variants.forEach(function(variant){ if(variant.m) queueModelPreload(variant.m); });
-  });
+function queueNeighborPreload(stepIndex){
+  var next=SECS[stepIndex+1];
+  if(!next) return;
+  next.variants.forEach(function(variant){ if(variant.m) queueModelPreload(variant.m); });
   pumpModelPreload();
 }
 
@@ -768,7 +767,6 @@ function initThree(){
   scene=new THREE.Scene();
   camera=new THREE.PerspectiveCamera(45,wrap.clientWidth/wrap.clientHeight,.1,100);
   camera.position.set(0,.18,4.4);
-  gltfLoader=new THREE.GLTFLoader();
 
   renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,mobile?1.35:1.8));
@@ -777,6 +775,25 @@ function initThree(){
   renderer.outputEncoding=THREE.sRGBEncoding;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure=1.2;
+
+  gltfLoader=new THREE.GLTFLoader();
+
+  if(window.THREE && THREE.DRACOLoader){
+    dracoLoader=new THREE.DRACOLoader();
+    dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
+    gltfLoader.setDRACOLoader(dracoLoader);
+  }
+
+  if(window.THREE && THREE.KTX2Loader){
+    ktx2Loader=new THREE.KTX2Loader();
+    ktx2Loader.setTranscoderPath("https://cdn.jsdelivr.net/npm/three@0.128/examples/js/libs/basis/");
+    ktx2Loader.detectSupport(renderer);
+    gltfLoader.setKTX2Loader(ktx2Loader);
+  }
+
+  if(window.MeshoptDecoder && gltfLoader.setMeshoptDecoder){
+    gltfLoader.setMeshoptDecoder(window.MeshoptDecoder);
+  }
 
   scene.add(new THREE.AmbientLight(0x6366f1,.4));
   var kl=new THREE.DirectionalLight(0xffffff,1.6);kl.position.set(3,5,4);scene.add(kl);
@@ -793,7 +810,6 @@ function initThree(){
 
   buildModel(SECS[0].variants[0]);
   queueSectionPreload('shirts');
-  setTimeout(queueAllModelPreloads,300);
 
   /* Drag */
   cv.addEventListener('mousedown',function(e){drag=true;pmx=e.clientX;pmy=e.clientY;autoRot=false;});
@@ -829,7 +845,6 @@ function mat(c,r,m){return new THREE.MeshStandardMaterial({color:c,roughness:r||
 function buildModel(v){
   activeModelToken++;
   var token=activeModelToken;
-  var placeholderShown=false;
 
   if(mesh){
     var old=mesh;
@@ -837,26 +852,18 @@ function buildModel(v){
   }
   if(v.m){
     showModelStatus('Loading '+String(v.n||'3D model').toUpperCase()+'...');
-    var swapDelay=setTimeout(function(){
-      if(token!==activeModelToken) return;
-      placeholderShown=true;
-      finalizeModel(buildProceduralModel(v));
-    },180);
-
     loadModelAsset(v.m).then(function(source){
       if(token!==activeModelToken) return;
-      clearTimeout(swapDelay);
-      if(placeholderShown && mesh){
-        var oldMesh=mesh;
-        gsap.to(oldMesh.scale,{x:0,y:0,z:0,duration:.2,ease:'power2.in',onComplete:function(){scene.remove(oldMesh);}});
-      }
       finalizeModel(prepareLoadedModel(source,v));
       hideModelStatus();
-    }).catch(function(){
+    }).catch(function(error){
       if(token!==activeModelToken) return;
-      clearTimeout(swapDelay);
+      console.warn('Failed to load 3D model:', v.m, error);
       finalizeModel(buildProceduralModel(v));
-      hideModelStatus();
+      showModelStatus('3D model unavailable. Showing fallback preview.');
+      setTimeout(function(){
+        if(token===activeModelToken) hideModelStatus();
+      },1400);
     });
     return;
   }
@@ -1031,57 +1038,6 @@ function openVariantSearch(sec,v){
   window.location.href=getVariantSearchUrl(sec,v);
 }
 
-function initLoaderPreview(){
-  var canvas=document.getElementById('lcv');
-  if(!canvas || !window.THREE) return function(){};
-
-  var previewRenderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true});
-  var previewScene=new THREE.Scene();
-  var previewCamera=new THREE.PerspectiveCamera(36,1,.1,100);
-  var previewModel=buildProceduralModel(SECS[0].variants[0]);
-  var stopped=false;
-
-  previewCamera.position.set(0,.15,4.3);
-  previewRenderer.setPixelRatio(Math.min(window.devicePixelRatio,1.4));
-
-  function resizePreview(){
-    var rect=canvas.getBoundingClientRect();
-    var width=Math.max(180,Math.round(rect.width||280));
-    var height=Math.max(180,Math.round(rect.height||280));
-    previewRenderer.setSize(width,height,false);
-    previewCamera.aspect=width/height;
-    previewCamera.updateProjectionMatrix();
-  }
-
-  previewScene.add(new THREE.AmbientLight(0x6366f1,.55));
-  var keyLight=new THREE.DirectionalLight(0xffffff,1.35);
-  keyLight.position.set(2,4,4);
-  previewScene.add(keyLight);
-  var rimLight=new THREE.DirectionalLight(0x8b5cf6,.75);
-  rimLight.position.set(-3,2,-2);
-  previewScene.add(rimLight);
-  previewScene.add(previewModel);
-  resizePreview();
-
-  function loop(){
-    if(stopped) return;
-    previewModel.rotation.y+=.01;
-    previewModel.rotation.x=Math.sin(Date.now()*.001)*.08;
-    previewModel.position.y=Math.sin(Date.now()*.0013)*.05;
-    previewRenderer.render(previewScene,previewCamera);
-    requestAnimationFrame(loop);
-  }
-
-  window.addEventListener('resize',resizePreview);
-  loop();
-
-  return function stopPreview(){
-    stopped=true;
-    window.removeEventListener('resize',resizePreview);
-    previewRenderer.dispose();
-  };
-}
-
 function renderVariants(si){
   var sec=SECS[si],row=document.getElementById('vrow');
   var activeIdx=chosen[sec.id]||0;
@@ -1157,6 +1113,7 @@ function goStep(idx){
   animLabel('#slname',sec.name);
   renderVariants(idx);
   queueSectionPreload(sec.id);
+  queueNeighborPreload(idx);
   var vi=chosen[sec.id]||0;
   buildModel(sec.variants[vi]);
   document.getElementById('pname').textContent=sec.variants[vi].n.toUpperCase();
@@ -1195,7 +1152,6 @@ function animHero(){
   var el=document.getElementById('loader'),bar=document.getElementById('lbar');
   var logo=document.getElementById('llogo'),tape=document.getElementById('tape');
   var strips=tape.querySelectorAll('.tstrip');
-  var stopLoaderPreview=initLoaderPreview();
 
   setTimeout(function(){logo.style.opacity='1';},200);
 
@@ -1222,7 +1178,6 @@ function animHero(){
 
     setTimeout(function(){
       el.style.display='none';
-      stopLoaderPreview();
       initThree();
       initStory();
       animHero();

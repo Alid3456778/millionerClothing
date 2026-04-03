@@ -112,7 +112,22 @@ function adminMiddleware(req, res, next) {
 }
 
 app.use(express.json());
-app.use(express.static(baseDir));
+app.use(
+  "/model",
+  express.static(path.join(baseDir, "model"), {
+    etag: true,
+    lastModified: true,
+    maxAge: "30d",
+    immutable: true
+  })
+);
+app.use(
+  express.static(baseDir, {
+    etag: true,
+    lastModified: true,
+    maxAge: "1h"
+  })
+);
 
 app.get("/", (_req, res) => res.sendFile(path.join(baseDir, "index.html")));
 app.get("/searchPage", (_req, res) => res.sendFile(path.join(baseDir, "searchPage.html")));
