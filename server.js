@@ -1,4 +1,6 @@
 require("dotenv").config();
+const http = require("http");
+const https = require("https");
 const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -14,9 +16,9 @@ const baseDir = __dirname;
 const port = Number(process.env.PORT) || 3000;
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/m-brand-store";
 const jwtSecret = process.env.JWT_SECRET || "m-brand-dev-secret";
-const keepAliveEnabled = String(process.env.KEEP_ALIVE_ENABLED || "false").toLowerCase() === "true";
-const keepAliveIntervalMinutes = Math.max(1, Number(process.env.KEEP_ALIVE_INTERVAL_MINUTES || 12));
-const keepAlivePath = process.env.KEEP_ALIVE_PATH || "/api/health";
+const selfPingEnabled = String(process.env.SELF_PING_ENABLED || process.env.KEEP_ALIVE_ENABLED || "false").toLowerCase() === "true";
+const selfPingIntervalMinutes = Math.max(1, Number(process.env.SELF_PING_INTERVAL_MINUTES || process.env.KEEP_ALIVE_INTERVAL_MINUTES || 13));
+const selfPingUrl = String(process.env.SELF_PING_URL || process.env.KEEP_ALIVE_URL || "").trim();
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -67,39 +69,24 @@ function sanitizeUser(user) {
   };
 }
 
-function getKeepAliveUrl() {
-  const explicitUrl = String(process.env.KEEP_ALIVE_URL || "").trim();
-  if (explicitUrl) return explicitUrl;
+function startSelfPingLoop() {
+  if (!selfPingEnabled || !selfPingUrl) return;
 
-  const appUrl = String(process.env.APP_URL || "").trim();
-  if (appUrl) {
-    return new URL(keepAlivePath, appUrl).toString();
-  }
+  const keepAliveUrl = selfPingUrl;
+  const intervalMs = selfPingIntervalMinutes * 60 * 1000;
+  const proto = keepAliveUrl.startsWith("https") ? https : http;
 
-  return `http://127.0.0.1:${port}${keepAlivePath}`;
-}
+  setInterval(() => {
+    const request = proto.get(keepAliveUrl, { headers: { "x-keep-alive": "m-brand" } }, (response) => {
+      response.resume();
+      console.log(`[keep-alive] ${response.statusCode} ${keepAliveUrl}`);
+    });
+    request.on("error", (error) => {
+      console.warn(`[keep-alive] Failed to reach ${keepAliveUrl}: ${error.message}`);
+    });
+  }, intervalMs);
 
-function startKeepAliveLoop() {
-  if (!keepAliveEnabled) return;
-
-  const targetUrl = getKeepAliveUrl();
-  const intervalMs = keepAliveIntervalMinutes * 60 * 1000;
-
-  async function pingSelf() {
-    try {
-      const response = await fetch(targetUrl, {
-        method: "GET",
-        headers: { "x-keep-alive": "m-brand" }
-      });
-      console.log(`[keep-alive] ${response.status} ${targetUrl}`);
-    } catch (error) {
-      console.warn(`[keep-alive] Failed to reach ${targetUrl}: ${error.message}`);
-    }
-  }
-
-  setTimeout(pingSelf, 15 * 1000);
-  setInterval(pingSelf, intervalMs);
-  console.log(`[keep-alive] Enabled. Pinging ${targetUrl} every ${keepAliveIntervalMinutes} minute(s).`);
+  console.log(`[keep-alive] Enabled. Pinging ${keepAliveUrl} every ${selfPingIntervalMinutes} minute(s).`);
 }
 
 async function buildUserCart(userId) {
@@ -176,8 +163,21 @@ app.get("/admin", (_req, res) => res.sendFile(path.join(baseDir, "admin.html")))
 app.get("/admin-login", (_req, res) => res.sendFile(path.join(baseDir, "admin-login.html")));
 app.get("/product/:slug", (_req, res) => res.sendFile(path.join(baseDir, "product.html")));
 
+function healthPayload() {
+  return {
+    ok: true,
+    mongoState: mongoose.connection.readyState,
+    uptime: Math.floor(process.uptime()),
+    mem: `${Math.floor(process.memoryUsage().heapUsed / 1024 / 1024)}MB`
+  };
+}
+
+app.get("/health", async (_req, res) => {
+  res.json(healthPayload());
+});
+
 app.get("/api/health", async (_req, res) => {
-  res.json({ ok: true, mongoState: mongoose.connection.readyState });
+  res.json(healthPayload());
 });
 
 app.post("/api/auth/register", async (req, res, next) => {
@@ -617,7 +617,7 @@ mongoose
     await ensureSeedData();
     app.listen(port, () => {
       console.log(`M Brand server running at http://localhost:${port}`);
-      startKeepAliveLoop();
+      startSelfPingLoop();
     });
   })
   .catch((error) => {
